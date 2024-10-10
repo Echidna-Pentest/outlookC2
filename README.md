@@ -8,13 +8,17 @@ I think that many malwares and C2 frameworks utilize HTTP/HTTPS or DNS for commu
 
 Additionally, there are cases where C2 communications via SMTP/IMAP can pose threats and vulnerabilities. For example, under the environment using a security solution like web isolation, direct HTTP/HTTPS outbound traffics from the clients to the internet can be blocked. In such environments, malware that uses SMTP/IMAP for C2 communications can be a significant threat to bypass web isolated environment.
 
+Since PowerShell can control Outlook, this C2 framework operates the Outlook on the client side to communicate with the server. The reason for using Outlook is that it is the most commonly used email client in businesses, especially in large organizations that can implement web isolation.
+
 ## How to Use
 ### Client
 
 Please execute outlookBeacon.ps1 or compile and run the .NET source code. The email address used as the C2 server is set in the variable serverAddress, so please change it to the email address you intend to use.
 
 `$serverAddress = "attackerSender@testmail.com"`
-`.¥outlookBeacon.ps1`
+
+`.\outlookBeacon.ps1`
+
 
 ### Server
 Even without starting the server, it can function as a C2 simply by sending emails to the client's email address from Gmail or something. However, sending emails each time can be cumbersome, and to simulate an interactive shell, I created a simple GUI tool.
@@ -49,8 +53,11 @@ recipient = "victimRecipient@testmail.com"
 | getFolders {FolderName}            | Compress the emails in the folder named FolderName into a zip file and send it to the C2 address.                              |
 | Other                | Execute PowerShell commands and email the results to the C2 address, e.g., whoami, ipconfig.   |
 
+You can send multiple commands separated by commas.
+`whoami; listFolders; net user`
 
-## Process Flow of outlookC2
+
+## Process Flow of outlookBeacon.ps1
 
 1. Modify the registry to turn off Outlook notifications.
 2. Monitor the running Outlook to check if there are any emails from the configured address (C2 address).
@@ -72,14 +79,23 @@ The general process flow of a reverse shell operation is as follows:
 2. C2 server responds with a command
 3. reverse shell executes the command and sends the result back to the C2 server
 
-In step 1, it is common for the client to generate requests to the C2 server at regular intervals (the length of the sleep period is often configurable). Additionally, when writing additional files, the malware itself or processes commonly used by malware, such as wget, bitsadmin, or certutil, may be responsible for writing the files. This can lead to detection by antivirus software (the parent process can be altered through techniques like injection).
+In step 1, it is common for the client to generate requests to the C2 server at regular intervals (the length of the sleep period is often configurable). 
 
+![alt text](img/generalC2.png)
+
+Additionally, when downloadng additional files, the malware itself or processes commonly used by malware, such as wget, bitsadmin, or certutil are used for writing the files. This can lead to detection by antivirus software or EDR because of DNS/http traffics or DISC IO (the parent process can be altered through techniques like injection).
+
+![alt text](img/generalC2ProcessTree.png)
 
 
 
 ### Process flow of outlookC2
 
-As mentioned earlier, outlookC2 only monitors the outlook  process and does not generate regular traffic with the C2 server. Regarding the writing of additional files, since the writing operation is done by Outlook which is not suspicious for writing, the likelihood of detection by antivirus software is also considered low. Furthermore, because it utilizes the already running Outlook process on the client, there is no need for SMTP server credentials, and no suspicious DNS communications will be generated from the client.
+As mentioned earlier, outlookC2 only monitors the outlook  process and does not generate regular traffic with the C2 server. 
+
+![alt text](img/outlookC2.png)
+
+Regarding the writing of additional files, since the writing operation is done by Outlook which is not suspicious for writing, the likelihood of detection by antivirus software is also considered low. Furthermore, because it utilizes the already running Outlook process on the client, there is no need for SMTP server credentials, and no suspicious DNS communications will be generated from the client.
 
 ![alt text](img/image-1.png)
 
@@ -107,8 +123,33 @@ https://research.splunk.com/cloud/dc4dc3a8-ff54-11eb-8bf7-acde48001122/
 https://www.elastic.co/guide/en/security/current/suspicious-inter-process-communication-via-outlook.html
 
 - CrowdStrike
+
 Depending on the EDR, there may be cases where Email Collection attacks are detected. For example, CrowdStrike has detected them in some cases. However, there are also cases where they don't detect, so it is important to consider detection mechanisms beyond just EDR.
 
 ![alt text](img/image.png)
 
 
+
+## Reference lists
+
+- BadOutlook
+
+Most similar, but not specific for Web Isolated Environment.
+A simple PoC which leverages the Outlook Application Interface (COM Interface) to execute shellcode on a system based on a specific trigger subject line
+
+https://github.com/aahmad097/BadOutlook
+
+- SharpGmailC2
+
+Abuse Gmail process for C2 communications via smtp and imap
+https://github.com/reveng007/SharpGmailC2
+
+- AzureOutlookC2 (2021)
+
+Uses Microsoft Graph API for C2 communications & data exfiltration.
+https://github.com/boku7/azureOutlookC2
+
+- Sans Article
+
+An article on the technical explanation and precautions for C2 communication using Outlook.
+https://isc.sans.edu/diary/29180
