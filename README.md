@@ -50,7 +50,7 @@ recipient = "victimRecipient@testmail.com"
 | C2 Command           | Description                                                                                      |
 |----------------------|--------------------------------------------------------------------------------------------------|
 | Download {Filepath}  | Attach the specified file and send it to the C2 address via email.                             |
-| Filepath             | Attach the specified file and send it to the victim address, which is located at C:\Windows\Tasks. |
+| {Filepath} in the attachment field            | Attach the specified file and send it to the victim address, which is located at C:\Windows\Tasks. |
 | search {Keyword}     | Search for emails containing the specified keyword in the inbox.                                 |
 | forward              | Create a rule to forward all incoming emails to the C2 address.                                 |
 | listFolders            | Retrieve all inbox folders and send the results to the C2 address.                              |
@@ -106,10 +106,11 @@ Regarding the writing of additional files, since the writing operation is done b
 
 ## Disadvantage of outlookC2
 
-One disadvantage is that, although I have added functionality to turn off notifications, some email clients may not allow this and some users may notice suspicious email which contains some powershell commands. To address this, one approach is to attach images to advertisement emails that users are likely to ignore, using techniques such as steganography to embed instructions from the C2 in a way that does not raise user's suspicion.
+Firstly, it is slower compared to HTTP/HTTPS reverse shells. This is an unavoidable characteristic due to the nature of email.
+
+One disadvantage is that, although I have added functionality to turn off notifications, some email clients may not allow this and some users may notice suspicious email which contains some powershell commands. In this regard, one approach is to attach images to advertisement emails that users are likely to ignore, embedding instructions from the C2 using techniques such as steganography, and sending emails that do not raise suspicion (future work).
 
 Another disadvantage is that some companies may restrict the email address domains to which they send emails (for example, free email addresses like Gmail). In this case, it will be necessary to send emails using compromised credentials from domains like those used in a botnet.
-
 
 
 
@@ -118,7 +119,6 @@ Another disadvantage is that some companies may restrict the email address domai
 Perhaps due to the limited cases of using SMTP/IMAP for C2 communications, there are fewer detection rules compared to HTTP/HTTPS/DNS. However, some of the existing detection rules are as follows.
 
 - Splunk (Gsuite Outbound Email With Attachment To External Domain)
-Gsuite Outbound Email With Attachment To External Domain (Not outlook)
 
 https://research.splunk.com/cloud/dc4dc3a8-ff54-11eb-8bf7-acde48001122/
 
@@ -126,7 +126,7 @@ https://research.splunk.com/cloud/dc4dc3a8-ff54-11eb-8bf7-acde48001122/
 
 https://www.elastic.co/guide/en/security/current/suspicious-inter-process-communication-via-outlook.html
 
-- CrowdStrike
+- EDR
 
 Depending on the EDR, there may be cases where Email Collection attacks are detected. For example, CrowdStrike has detected them in some cases. However, there are also cases where they don't detect, so it is important to consider detection mechanisms beyond just EDR.
 

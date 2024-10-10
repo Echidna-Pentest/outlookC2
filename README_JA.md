@@ -47,7 +47,7 @@ recipient = "victimRecipient@testmail.com"
 | C2 Command | Description |
 | ---- | ---- |
 | Download {Filepath}| 指定されたファイルを添付してメールでC2アドレスに送信 |
-| Filepath| 指定されたファイルを添付してメールでvictimアドレスに送信、outlookBeacon.ps1は受信したファイルをC:\Windows\Tasksにドロップ |
+| {Filepath} in the attachment field| 指定されたファイルを添付してメールでvictimアドレスに送信、outlookBeacon.ps1は受信したファイルをC:\Windows\Tasksにドロップ |
 | search {Keyword} | Keywordを含むメールを受信トレイから検索 |
 | forward | C2アドレスに今後受信メールを送信するルール作成 |
 | listFolders | すべての受信フォルダを取得して、結果をC2アドレスに送信 |
@@ -104,8 +104,9 @@ outlookC2はプロセスを監視しているだけで、定期的なC2とのト
 
 ## outlookC2の欠点
 
+まずhttp/httpsのリバースシェルと比較すると遅いことである。これはメールの特性上仕方がないことである。
 
-欠点としては、通知をオフにする処理を追加しているものの、メールクライアントによっては通知をオフできなかったりするため、AVよりもユーザに不審に思われるリスクがある。これの対策としては、例えばユーザが無視するであろう広告メールに添付画像を付与して、そこにC2からの指示をsteganographyのようなテクニックを利用して不審に思われないようにする
+他の欠点は、通知をオフにする処理を追加しているものの、メールクライアントによっては通知をオフできなかったりするため、AVよりもユーザに不審に思われるリスクがある。これに関しては、例えばユーザが無視するであろう広告メールに添付画像を付与して、そこにC2からの指示をsteganographyのようなテクニックを利用して埋め込み、不審に思われないメールを送付する等の対処法がある。
 
 もう１つの欠点は企業によっては送付先のメールアドレスドメインを制限している場合がある(例えば、Gmail等のフリーアドレスなど)。この場合は、Botnetのような侵害済みのドメインのクレデンシャルからメールを送付する必要がある。もしくは、内部環境の横展開に利用する場合は組織内のドメインアドレスからのメールとなるため、メールアドレスのチェックは無効になると考えられる。
 
@@ -123,7 +124,7 @@ https://research.splunk.com/cloud/dc4dc3a8-ff54-11eb-8bf7-acde48001122/
 
 https://www.elastic.co/guide/en/security/current/suspicious-inter-process-communication-via-outlook.html
 
-- CrowdStrike
+- EDR
 
 EDRによってはEmail Collectionの攻撃を検知する場合があります。例えばCrowdStrikeではプロセスの流れによっては下記のように検知する場合もありました。しかし、検知しないこともあるので、EDR以外でも検知する仕組みを考えることが重要です。
 
