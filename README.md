@@ -141,11 +141,13 @@ Depending on the EDR, there may be cases where Email Collection attacks are dete
 Most similar, but not specific for Web Isolated Environment.
 A simple PoC which leverages the Outlook Application Interface (COM Interface) to execute shellcode on a system based on a specific trigger subject line
 
+
 https://github.com/aahmad097/BadOutlook
 
 - SharpGmailC2
 
 Abuse Gmail process for C2 communications via smtp and imap. 
+
 
 https://github.com/reveng007/SharpGmailC2
 
@@ -153,9 +155,11 @@ https://github.com/reveng007/SharpGmailC2
 
 Uses Microsoft Graph API for C2 communications & data exfiltration.
 
+
 https://github.com/boku7/azureOutlookC2
 
 - Sans Article
 
 An article on the technical explanation and precautions for C2 communication using Outlook.
+
 https://isc.sans.edu/diary/29180
