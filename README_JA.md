@@ -1,6 +1,6 @@
 # outlookC2
 
-これは検証用のoutlookを利用したC2フレームワークです。クライアントでoutlookを実行した状態でbeacon.ps1、サーバ側でserver.pyを実行すると、クライアントのoutlookのメールを介してC2通信することができます。
+これは検証用のoutlookを利用したC2フレームワークです。クライアントでoutlookを実行した状態でbeacon.ps1、サーバ側でoutlookC2Server.pyを実行すると、クライアントのoutlookのメールを介してC2通信することができます。
 
 多くのマルウェアやC2フレームワークが通信にhttp/https、もしくはDNSを利用するためか、それらと比較するとSMTP/IMAPを利用するC2通信は注目されていないと感じます。しかし、SMTP/IMAPをC2通信に利用するマルウェア/Actorは少ないですが存在します (主にdata exfiltration)。
 
@@ -17,7 +17,7 @@ beacon.ps1を実行、もしくは.netのソースコードをコンパイルし
 サーバを起動しなくても、単純にclientのメールアドレスにメールを送付するだけでC2として機能することはできます。
 しかし、毎回メールを送信するのは面倒、かつシェルをシミュレートするために簡単なGUIツールを作成しています、
 
-server.pyに認証情報が記載されているので、メールを送りたいメールアドレスの認証情報を設定してください。
+outlookC2Server.pyに認証情報が記載されているので、メールを送りたいメールアドレスの認証情報を設定してください。
 
 ```
 smtp_server = 'smtp.gmail.com'
@@ -32,9 +32,9 @@ recipient = "victimRecipient@testmail.com"
 
 その後、サーバを実行してGUIからSubject、Contentsに実行したいC2コマンドを入力してSend Emailボタンを押すと、上記の設定したattackerSenderからvictimRecipient宛にメールが送付されます。
 
-`python3 server.py`
+`python3 outlookC2Server.py`
 
-![alt text](c2server.png)
+![alt text](img/c2server.png)
 
 ## 対応しているC2コマンド
 
@@ -79,7 +79,8 @@ recipient = "victimRecipient@testmail.com"
 outlookC2はプロセスを監視しているだけで、定期的なC2とのトラフィックは発生しない。追加ファイルの書き込みに関しても、書き込むプロセスはOutlookとなるため、AVに検知される可能性も低いと考える。
 また、クライアントの起動済みのOutlookプロセスを利用するため、SMTPサーバ-のクレデンシャルも不要で、クライアントからの不審なDNS通信も発生しない。
 
-![alt text](image-1.png)
+![alt text](img/image-1.png)
+
 
 
 
@@ -108,5 +109,5 @@ https://www.elastic.co/guide/en/security/current/suspicious-inter-process-commun
 
 EDRによってはEmail Collectionの攻撃を検知する場合があります。例えばCrowdStrikeではプロセスの流れによっては下記のように検知する場合もありました。しかし、検知しないこともあるので、EDR以外でも検知する仕組みを考えることが重要です。
 
-![alt text](image.png)
+![alt text](img/image.png)
 

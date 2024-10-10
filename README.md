@@ -1,6 +1,6 @@
 # outlookC2
 
-This is a C2 framework utilizing Outlook for testing purposes. By running beacon.ps1 on the client with Outlook executed and server.py on the server side, you can communicate with the C2 via Outlook emails.
+This is a C2 framework utilizing Outlook for testing purposes. By running outlookBeacon.ps1 on the client with Outlook executed and outlookC2Server.py on the server side, you can communicate with the C2 via Outlook emails.
 
 ![](img/demo.gif)
 
@@ -11,7 +11,7 @@ Additionally, there are cases where C2 communications via SMTP/IMAP can pose thr
 ## How to Use
 ### Client
 
-Please execute beacon.ps1 or compile and run the .NET source code. The email address used as the C2 server is set in the variable serverAddress, so please change it to the email address you intend to use.
+Please execute outlookBeacon.ps1 or compile and run the .NET source code. The email address used as the C2 server is set in the variable serverAddress, so please change it to the email address you intend to use.
 
 `$serverAddress = "attackerSender@testmail.com"`
 `.¥outlookBeacon.ps1`
@@ -19,7 +19,7 @@ Please execute beacon.ps1 or compile and run the .NET source code. The email add
 ### Server
 Even without starting the server, it can function as a C2 simply by sending emails to the client's email address from Gmail or something. However, sending emails each time can be cumbersome, and to simulate an interactive shell, I created a simple GUI tool.
 
-The authentication information is specified in server.py, so please set the credentials for the email address you wish to send emails to.
+The authentication information is specified in outlookC2Server.py, so please set the credentials for the email address you wish to send emails to.
 
 
 ```
