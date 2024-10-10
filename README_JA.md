@@ -4,7 +4,11 @@
 
 ![](img/demo.gif)
 
-多くのマルウェアやC2フレームワークが通信にhttp/https、もしくはDNSを利用するためか、それらと比較するとSMTP/IMAPを利用するC2通信は注目されていないと感じます。しかし、SMTP/IMAPをC2通信に利用するマルウェア/Actorは少ないですが存在します (主にdata exfiltration)。
+多くのマルウェアやC2フレームワークが通信にhttp/https、もしくはDNSを利用するためか、それらと比較するとSMTP/IMAPを利用するC2通信は注目されていないと感じます。しかし、SMTP/IMAPをC2通信に利用するマルウェア/Actorは少ないですが存在します (主にdata exfiltration)。MITRE ATT&CKでは3つの攻撃テクニックが紹介されています。
+
+- Local Email Collection
+- Remote Email Collection
+- Email Forwarding Rule
 
 また、SMTP/IMAPによるC2通信が脅威・脆弱性となるケースが存在します。例えばWeb分離というセキュリティソリューションを利用すれば、クライアントから外部への直接的なhttp/https通信は遮断することができます。こういった環境下ではSMTP/IMAPをC2通信に利用するマルウェアがある場合、大きな脅威となりえると考えます。
 

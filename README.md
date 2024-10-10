@@ -4,7 +4,11 @@ This is a C2 framework utilizing Outlook for testing purposes. By running outloo
 
 ![](img/demo.gif)
 
-I think that many malwares and C2 frameworks utilize HTTP/HTTPS or DNS for communication, that's why C2 communications using SMTP/IMAP are not given much attention compared to http/https/dns. However, there are indeed some malware and actors that utilize SMTP/IMAP for C2 communications (ex AgentTesla, Emotet, APT28, etc), although they are relatively few.
+I think that many malwares and C2 frameworks utilize HTTP/HTTPS or DNS for communication, that's why C2 communications using SMTP/IMAP are not given much attention compared to http/https/dns. However, there are indeed some malware and actors that utilize SMTP/IMAP for C2 communications (ex AgentTesla, Emotet, APT28, etc), although they are relatively few. There are three email collection techniques according to MITRE ATT&CK. 
+
+- Local Email Collection
+- Remote Email Collection
+- Email Forwarding Rule
 
 Additionally, there are cases where C2 communications via SMTP/IMAP can pose threats and vulnerabilities. For example, under the environment using a security solution like web isolation, direct HTTP/HTTPS outbound traffics from the clients to the internet can be blocked. In such environments, malware that uses SMTP/IMAP for C2 communications can be a significant threat to bypass web isolated environment.
 
@@ -141,12 +145,14 @@ https://github.com/aahmad097/BadOutlook
 
 - SharpGmailC2
 
-Abuse Gmail process for C2 communications via smtp and imap
+Abuse Gmail process for C2 communications via smtp and imap. 
+
 https://github.com/reveng007/SharpGmailC2
 
 - AzureOutlookC2 (2021)
 
 Uses Microsoft Graph API for C2 communications & data exfiltration.
+
 https://github.com/boku7/azureOutlookC2
 
 - Sans Article
