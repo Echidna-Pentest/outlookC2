@@ -1,6 +1,6 @@
 # outlookC2
 
-これは検証用のoutlookを利用したC2フレームワークです。クライアントでoutlookを実行した状態でbeacon.ps1、サーバ側でoutlookC2Server.pyを実行すると、クライアントのoutlookのメールを介してC2通信することができます。
+これは検証用のoutlookを利用したC2フレームワークです。クライアントでoutlookを実行した状態でoutlookBeacon.ps1、サーバ側でoutlookC2Server.pyを実行すると、クライアントのoutlookのメールを介してC2通信することができます。
 
 ![](img/demo.gif)
 
@@ -9,6 +9,8 @@
 - Local Email Collection
 - Remote Email Collection
 - Email Forwarding Rule
+
+https://attack.mitre.org/techniques/T1114/
 
 また、SMTP/IMAPによるC2通信が脅威・脆弱性となるケースが存在します。例えばWeb分離というセキュリティソリューションを利用すれば、クライアントから外部への直接的なhttp/https通信は遮断することができます。こういった環境下ではSMTP/IMAPをC2通信に利用するマルウェアがある場合、大きな脅威となりえると考えます。
 

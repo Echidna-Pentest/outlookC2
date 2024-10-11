@@ -10,6 +10,8 @@ I think that many malwares and C2 frameworks utilize HTTP/HTTPS or DNS for commu
 - Remote Email Collection
 - Email Forwarding Rule
 
+https://attack.mitre.org/techniques/T1114/
+
 Additionally, there are cases where C2 communications via SMTP/IMAP can pose threats and vulnerabilities. For example, under the environment using a security solution like web isolation, direct HTTP/HTTPS outbound traffics from the workstations to the internet can be blocked. In such environments, malware that uses SMTP/IMAP for C2 communications can be a significant threat to bypass web isolated environment.
 
 Since PowerShell can control Outlook, this C2 framework operates the Outlook on the workstation to communicate with the server. The reason for using Outlook is that it is the most commonly used email software in businesses, especially in large organizations that can implement web isolation.
@@ -163,3 +165,9 @@ https://github.com/boku7/azureOutlookC2
 An article on the technical explanation and precautions for C2 communication using Outlook.
 
 https://isc.sans.edu/diary/29180
+
+
+
+## Caution
+THIS SOFTWARE IS CREATED ONLY FOR THE SECURITY TRAINING PURPOSE SUCH AS RED TEAM OPERATION AND ENGINEER SKILL CHECK. THE USER SHALL NOT USE THIS SOFTWARE FOR THE ATTACKING ON THE THIRD PARTY SYSTEM.
+THE SOFTWARE IS PROVIDED “AS IS” AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
