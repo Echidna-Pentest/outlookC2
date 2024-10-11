@@ -1,6 +1,6 @@
 # outlookC2
 
-This is a C2 framework utilizing Outlook for testing purposes. By running outlookBeacon.ps1 on the client with Outlook executed and outlookC2Server.py on the server side, you can communicate with the C2 via Outlook emails.
+This is a C2 framework utilizing Outlook for testing purposes. By running outlookBeacon.ps1 on the workstation with Outlook executed and outlookC2Server.py on the server side, you can communicate with the C2 via Outlook emails.
 
 ![](img/demo.gif)
 
@@ -10,12 +10,12 @@ I think that many malwares and C2 frameworks utilize HTTP/HTTPS or DNS for commu
 - Remote Email Collection
 - Email Forwarding Rule
 
-Additionally, there are cases where C2 communications via SMTP/IMAP can pose threats and vulnerabilities. For example, under the environment using a security solution like web isolation, direct HTTP/HTTPS outbound traffics from the clients to the internet can be blocked. In such environments, malware that uses SMTP/IMAP for C2 communications can be a significant threat to bypass web isolated environment.
+Additionally, there are cases where C2 communications via SMTP/IMAP can pose threats and vulnerabilities. For example, under the environment using a security solution like web isolation, direct HTTP/HTTPS outbound traffics from the workstations to the internet can be blocked. In such environments, malware that uses SMTP/IMAP for C2 communications can be a significant threat to bypass web isolated environment.
 
-Since PowerShell can control Outlook, this C2 framework operates the Outlook on the client side to communicate with the server. The reason for using Outlook is that it is the most commonly used email client in businesses, especially in large organizations that can implement web isolation.
+Since PowerShell can control Outlook, this C2 framework operates the Outlook on the workstation to communicate with the server. The reason for using Outlook is that it is the most commonly used email software in businesses, especially in large organizations that can implement web isolation.
 
 ## How to Use
-### Client
+### workstation
 
 Please execute outlookBeacon.ps1 or compile and run the .NET source code. The email address used as the C2 server is set in the variable serverAddress, so please change it to the email address you intend to use.
 
@@ -25,7 +25,7 @@ Please execute outlookBeacon.ps1 or compile and run the .NET source code. The em
 
 
 ### Server
-Even without starting the server, it can function as a C2 simply by sending emails to the client's email address from Gmail or something. However, sending emails each time can be cumbersome, and to simulate an interactive shell, I created a simple GUI tool.
+Even without starting the server, it can function as a C2 simply by sending emails to the victim's email address from Gmail or something. However, sending emails each time can be cumbersome, and to simulate an interactive shell, I created a simple GUI tool.
 
 The authentication information is specified in outlookC2Server.py, so please set the credentials for the email address you wish to send emails to.
 
@@ -83,7 +83,7 @@ The general process flow of a reverse shell operation is as follows:
 2. C2 server responds with a command
 3. reverse shell executes the command and sends the result back to the C2 server
 
-In step 1, it is common for the client to generate requests to the C2 server at regular intervals (the length of the sleep period is often configurable). 
+In step 1, it is common for the malware to generate requests to the C2 server at regular intervals (the length of the sleep period is often configurable). 
 
 ![alt text](img/generalC2.png)
 
@@ -99,7 +99,7 @@ As mentioned earlier, outlookC2 only monitors the outlook  process and does not 
 
 ![alt text](img/outlookC2.png)
 
-Regarding the writing of additional files, since the writing operation is done by Outlook which is not suspicious for writing, the likelihood of detection by antivirus software is also considered low. Furthermore, because it utilizes the already running Outlook process on the client, there is no need for SMTP server credentials, and no suspicious DNS communications will be generated from the client.
+Regarding the writing of additional files, since the writing operation is done by Outlook which is not suspicious for writing, the likelihood of detection by antivirus software is also considered low. Furthermore, because it utilizes the already running Outlook process on the workstation, there is no need for SMTP server credentials, and no suspicious DNS communications will be generated from the workstation.
 
 ![alt text](img/image-1.png)
 
@@ -108,7 +108,7 @@ Regarding the writing of additional files, since the writing operation is done b
 
 Firstly, it is slower compared to HTTP/HTTPS reverse shells. This is an unavoidable characteristic due to the nature of email.
 
-One disadvantage is that, although I have added functionality to turn off notifications, some email clients may not allow this and some users may notice suspicious email which contains some powershell commands. In this regard, one approach is to attach images to advertisement emails that users are likely to ignore, embedding instructions from the C2 using techniques such as steganography, and sending emails that do not raise suspicion (future work).
+One disadvantage is that, although I have added functionality to turn off notifications, some email software may not allow this and some users may notice suspicious email which contains some powershell commands. In this regard, one approach is to attach images to advertisement emails that users are likely to ignore, embedding instructions from the C2 using techniques such as steganography, and sending emails that do not raise suspicion (future work).
 
 Another disadvantage is that some companies may restrict the email address domains to which they send emails (for example, free email addresses like Gmail). In this case, it will be necessary to send emails using compromised credentials from domains like those used in a botnet.
 
