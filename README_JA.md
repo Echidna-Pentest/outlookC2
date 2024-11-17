@@ -113,6 +113,23 @@ outlookC2はプロセスを監視しているだけで、定期的なC2とのト
 もう１つの欠点は企業によっては送付先のメールアドレスドメインを制限している場合がある(例えば、Gmail等のフリーアドレスなど)。この場合は、Botnetのような侵害済みのドメインのクレデンシャルからメールを送付する必要がある。もしくは、内部環境の横展開に利用する場合は組織内のドメインアドレスからのメールとなるため、メールアドレスのチェックは無効になると考えられる。
 
 
+### Steganograhpy
+まず、適当なpngファイルを用意して、stegano.pyを実行する。今回はラップトップの画像(original.png)にC2コマンド(ex: whoami; ls; ipconfig;)を埋め込まれたencoded_image.pngが作成される。
+
+`python3 stegano.py`
+
+![alt text](img/stegano.png)
+
+次に、encoded_image.pngを添付した不審に思われないメール（例えばlaptopの広告メール）を作成する。
+
+![alt text](img/steganoSend.png)
+
+クライアント側で広告メールを受理して、バックグラウンドでencoded_image.pngに埋め込まれたc2コマンドがデコードされて、実行結果をサーバ側に送付される。outlookBeacon.ps1がC2メールアドレスからpngファイルが添付されている場合のみ、クライアント側でデコード処理が行われる仕様。
+
+![alt text](img/steganoReceived.png)
+
+このようなSteganographyの技術と組み合わせると、たとえユーザがC2からの指示メールに気づいたところで無視され、水面下でC2との通信が行われる可能性があると考える。
+
 ## 検知ルール
 
 SMTP/IMAPをC2通信に利用するケースは少ないためか、http/https/dnsと比較して多くないが、少ない検知ルールは以下の通り。

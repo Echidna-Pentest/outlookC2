@@ -114,7 +114,23 @@ One disadvantage is that, although I have added functionality to turn off notifi
 
 Another disadvantage is that some companies may restrict the email address domains to which they send emails (for example, free email addresses like Gmail). In this case, it will be necessary to send emails using compromised credentials from domains like those used in a botnet.
 
+### Steganography
 
+First, prepare an appropriate PNG file and execute stegano.py. In this example, an image of a laptop (original.png) is used to embed C2 commands (e.g., whoami; ls; ipconfig;), resulting in the creation of encoded_image.png.
+
+`python3 stegano.py`
+
+![alt text](img/stegano.png)
+
+Next, create an unsuspicious email (e.g., a laptop advertisement email) with encoded_image.png attached.
+
+![alt text](img/steganoSend.png)
+
+On the client side, when the advertisement email is received, the C2 commands embedded in encoded_image.png are decoded in the background, and the execution results are sent back to the server. The outlookBeacon.ps1 script is designed to perform the decoding process on the client side only when the email contains an attached PNG file from the designated C2 email address.
+
+![alt text](img/steganoReceived.png)
+
+By combining steganography techniques like this, even if the user notices the instruction email from the C2 server, it is likely to be ignored, allowing communication with the C2 server to proceed unnoticed in the background.
 
 ## Detection Rules
 
