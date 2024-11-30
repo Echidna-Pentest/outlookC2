@@ -79,7 +79,6 @@ def fetch_email(imap_server, username, password, mailbox='inbox'):
                     break
         else:
             email_body = msg.get_payload(decode=True).decode('utf-8')
-
         return f"From: {msg['From']}\nSubject: {msg['Subject']}\n\n{email_body}"
     except Exception as e:
         print(f"Error receiving email: {e}")
@@ -117,6 +116,7 @@ recipient = "victimRecipient@testmail.com"
 
 last_seen_email_id = None
 
+# Initialize the root window
 root = tk.Tk()
 root.title("Email Client")
 
