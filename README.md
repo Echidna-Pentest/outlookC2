@@ -151,6 +151,74 @@ Depending on the EDR, there may be cases where Email Collection attacks are dete
 ![alt text](img/image.png)
 
 
+### Custom Rule
+
+Custom Rule
+
+This tool utilizes the Component Object Model (COM) to interact with the Outlook process via PowerShell or .NET.
+
+https://attack.mitre.org/techniques/T1559/001/
+
+By examining the process tree, it was observed that Outlook is launched with svchost.exe as the parent process and `-Embedding` as an argument during initial startup. It has been confirmed that this outlook process control through COM can be searched using CrowdStrike's Advanced Event Search.
+
+![alt text](img/ProcessTree.png)
+
+- CrowdStrike search query
+
+```
+#event_simpleName = ProcessRollup2
+| ParentBaseFileName = svchost.exe 
+  AND CommandLine = "*OUTLOOK.EXE* -Embedding"
+| select([
+    timestamp,
+    #event_simpleName,
+    ParentBaseFileName,
+    CommandLine,
+    FileName,
+    ImageFileName
+])
+```
+
+![alt text](img/CrowdStrikeEvent.png)
+
+
+- Sigma Rule
+
+Not confirmed this works or not.
+
+```
+title: Detect Outlook Execution via COM with -Embedding Argument
+description: Detects execution of OUTLOOK.EXE with the -Embedding argument, initiated by svchost.exe.
+author: Terada Yu
+date: 2024-11-29
+status: experimental
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    ParentBaseFileName: "svchost.exe"
+    CommandLine|contains: "OUTLOOK.EXE"
+    CommandLine|contains: "-Embedding"
+  condition: selection
+fields:
+  - timestamp
+  - event_simpleName
+  - ParentBaseFileName
+  - CommandLine
+  - FileName
+  - Image
+falsepositives:
+  - Legitimate use of Outlook COM functionality for automation tasks.
+level: high
+tags:
+  - attack.execution
+  - attack.email_collection
+  - attack.t1114
+  - attack.component_object_model
+  - attack.t1559.001
+```
+
 
 ## Reference lists
 

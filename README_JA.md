@@ -149,6 +149,68 @@ EDRによってはEmail Collectionの攻撃を検知する場合があります�
 
 ![alt text](img/image.png)
 
+### 自作ルール
+このツールはComponent Object Model (COM)を利用してOutlookプロセスをPowershellや.netから操作している。
+
+https://attack.mitre.org/techniques/T1559/001/
+
+Processツリーを確認したところ、最初の起動時にsvchost.exeを親プロセスとして、Outlookを"-Embedding"を引数にして起動していたため、これを検知する。CrowdStrikeのAdvanced Event Searchでイベントサーチできることを確認済み。
+
+![alt text](img/ProcessTree.png)
+
+- CrowdStrikeでのサーチ文
+
+```
+#event_simpleName = ProcessRollup2
+| ParentBaseFileName = svchost.exe 
+  AND CommandLine = "*OUTLOOK.EXE* -Embedding"
+| select([
+    timestamp,
+    #event_simpleName,
+    ParentBaseFileName,
+    CommandLine,
+    FileName,
+    ImageFileName
+])
+```
+
+![alt text](img/CrowdStrikeEvent.png)
+
+
+- Sigmaルール
+
+```
+title: Detect Outlook Execution via COM with -Embedding Argument
+description: Detects execution of OUTLOOK.EXE with the -Embedding argument, initiated by svchost.exe.
+author: Terada Yu
+date: 2024-11-29
+status: experimental
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    ParentBaseFileName: "svchost.exe"
+    CommandLine|contains: "OUTLOOK.EXE"
+    CommandLine|contains: "-Embedding"
+  condition: selection
+fields:
+  - timestamp
+  - event_simpleName
+  - ParentBaseFileName
+  - CommandLine
+  - FileName
+  - Image
+falsepositives:
+  - Legitimate use of Outlook COM functionality for automation tasks.
+level: high
+tags:
+  - attack.execution
+  - attack.email_collection
+  - attack.t1114
+  - attack.component_object_model
+  - attack.t1559.001
+```
 
 
 ## 参考にしたサイト
